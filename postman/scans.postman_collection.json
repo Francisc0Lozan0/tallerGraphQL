@@ -1,0 +1,94 @@
+{
+	"info": {
+		"_postman_id": "2be4f35a-7a03-4e58-a32a-f66a91633cd6",
+		"name": "Scans API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"description": "Pruebas para el endpoint de scanner con imágenes"
+	},
+	"item": [
+		{
+			"name": "Scan imagen (producto conocido)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/scans",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"scans"
+					]
+				},
+				"description": "Sube una imagen de fruta/verdura/proteína para comprobar detección y guardado en inventario"
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Status válido', function () {",
+							"  pm.expect([200, 201]).to.include(pm.response.code);",
+							"});",
+							"",
+							"const json = pm.response.json();",
+							"",
+							"pm.test('Respuesta contiene detected o mensaje de no reconocimiento', function () {",
+							"  const hasDetected = Object.prototype.hasOwnProperty.call(json, 'detected');",
+							"  const hasUnknownMessage = json.message === 'No reconocido';",
+							"  pm.expect(hasDetected || hasUnknownMessage).to.eql(true);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Scan sin archivo (debe fallar)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/scans",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"scans"
+					]
+				},
+				"description": "Valida que el endpoint responda error cuando no se envía el archivo"
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Debe responder 400', function () {",
+							"  pm.response.to.have.status(400);",
+							"});"
+						]
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		}
+	]
+}
