@@ -4,7 +4,6 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
-import { GraphQLJSON } from 'graphql-type-json';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -31,9 +30,6 @@ import { SeedModule } from './modules/seed/seed.module';
       sortSchema: true,
       playground: true,
       context: ({ req }) => ({ req }),
-      resolvers: {
-        JSON: GraphQLJSON,
-      },
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
