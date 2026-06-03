@@ -1,12 +1,14 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLJSON } from 'graphql-type-json';
+import { Role } from '../auth/enums/role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InventoryService } from './inventory.service';
 
 interface RequestWithUser {
   user?: {
     id?: string;
+    role?: string;
   };
 }
 
@@ -22,7 +24,7 @@ export class InventoryResolver {
   ) {
     return this.inventoryService.create({
       ...input,
-      userId: req.user?.id,
+      userId: input.userId || req.user?.id,
     } as any);
   }
 
@@ -30,9 +32,13 @@ export class InventoryResolver {
   @UseGuards(JwtAuthGuard)
   inventoryItems(
     @Context('req') req: RequestWithUser,
+    @Args('userId', { type: () => String, nullable: true }) userId?: string,
     @Args('filter', { type: () => GraphQLJSON, nullable: true }) filter?: Record<string, any>,
   ) {
-    return this.inventoryService.findAll(req.user?.id as string, {
+    const isAdmin = req.user?.role === Role.Admin;
+    const targetUserId = isAdmin ? userId : (req.user?.id as string);
+    
+    return this.inventoryService.findAll(targetUserId, {
       q: filter?.q,
       category: filter?.category,
     });
@@ -40,14 +46,21 @@ export class InventoryResolver {
 
   @Query(() => GraphQLJSON)
   @UseGuards(JwtAuthGuard)
-  inventoryStats(@Context('req') req: RequestWithUser) {
-    return this.inventoryService.stats(req.user?.id as string);
+  inventoryStats(
+    @Context('req') req: RequestWithUser,
+    @Args('userId', { type: () => String, nullable: true }) userId?: string,
+  ) {
+    const isAdmin = req.user?.role === Role.Admin;
+    const targetUserId = isAdmin ? (userId || (req.user?.id as string)) : (req.user?.id as string);
+    return this.inventoryService.stats(targetUserId);
   }
 
   @Query(() => GraphQLJSON)
   @UseGuards(JwtAuthGuard)
   inventoryItem(@Args('id') id: string, @Context('req') req: RequestWithUser) {
-    return this.inventoryService.findOne(id, req.user?.id as string);
+    const isAdmin = req.user?.role === Role.Admin;
+    const userId = isAdmin ? undefined : (req.user?.id as string);
+    return this.inventoryService.findOne(id, userId);
   }
 
   @Mutation(() => GraphQLJSON)
@@ -57,7 +70,9 @@ export class InventoryResolver {
     @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
     @Context('req') req: RequestWithUser,
   ) {
-    return this.inventoryService.update(id, req.user?.id as string, input as any);
+    const isAdmin = req.user?.role === Role.Admin;
+    const userId = isAdmin ? undefined : (req.user?.id as string);
+    return this.inventoryService.update(id, userId, input as any);
   }
 
   @Mutation(() => GraphQLJSON)
@@ -72,6 +87,8 @@ export class InventoryResolver {
   @Mutation(() => GraphQLJSON)
   @UseGuards(JwtAuthGuard)
   deleteInventoryItem(@Args('id') id: string, @Context('req') req: RequestWithUser) {
-    return this.inventoryService.remove(id, req.user?.id as string);
+    const isAdmin = req.user?.role === Role.Admin;
+    const userId = isAdmin ? undefined : (req.user?.id as string);
+    return this.inventoryService.remove(id, userId);
   }
 }

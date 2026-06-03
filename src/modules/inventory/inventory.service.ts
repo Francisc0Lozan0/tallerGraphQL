@@ -75,8 +75,11 @@ export class InventoryService {
     return savedItem;
   }
 
-  async findAll(userId: string, filters?: { q?: string; category?: string }) {
-    const where: any = { userId };
+  async findAll(userId?: string, filters?: { q?: string; category?: string }) {
+    const where: any = {};
+    if (userId) {
+      where.userId = userId;
+    }
 
     if (filters?.q) {
       where.productName = ILike(`%${filters.q}%`);
@@ -93,9 +96,14 @@ export class InventoryService {
     });
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(id: string, userId?: string) {
+    const where: any = { id };
+    if (userId) {
+      where.userId = userId;
+    }
+
     const item = await this.repo.findOne({
-      where: { id, userId },
+      where,
       relations: ['product'],
     });
 
@@ -108,7 +116,7 @@ export class InventoryService {
 
   async update(
     id: string,
-    userId: string,
+    userId: string | undefined,
     updateInventoryItemDto: UpdateInventoryItemDto,
   ) {
     const item = await this.findOne(id, userId);
@@ -122,11 +130,11 @@ export class InventoryService {
       previousQuantity,
       lowStockThreshold: this.lowStockThreshold,
     });
-    await this.notificationsService.syncInventoryNotifications(userId);
+    await this.notificationsService.syncInventoryNotifications(item.userId);
     return savedItem;
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId?: string) {
     const item = await this.findOne(id, userId);
     return this.repo.remove(item);
   }

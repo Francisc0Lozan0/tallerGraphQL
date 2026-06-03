@@ -42,7 +42,6 @@ export class UsersResolver {
 
   @Query(() => [GraphQLJSON])
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin)
   users() {
     return this.usersService.findAll();
   }

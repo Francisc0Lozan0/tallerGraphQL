@@ -78,16 +78,25 @@ export class RecipesService {
     return recipe;
   }
 
-  async update(id: string, updateRecipeDto: UpdateRecipeDto) {
+  async update(id: string, updateRecipeDto: UpdateRecipeDto, requesterUserId?: string, isAdmin?: boolean) {
     const recipe = await this.findOne(id);
+
+    if (!isAdmin && requesterUserId && recipe.userId !== requesterUserId) {
+      throw new NotFoundException('No tienes permiso para actualizar esta receta o no existe.');
+    }
 
     Object.assign(recipe, updateRecipeDto);
 
     return this.repo.save(recipe);
   }
 
-  async remove(id: string) {
+  async remove(id: string, requesterUserId?: string, isAdmin?: boolean) {
     const recipe = await this.findOne(id);
+
+    if (!isAdmin && requesterUserId && recipe.userId !== requesterUserId) {
+      throw new NotFoundException('No tienes permiso para eliminar esta receta o no existe.');
+    }
+
     return this.repo.remove(recipe);
   }
 
