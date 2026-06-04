@@ -2,6 +2,10 @@
 
 Backend NestJS para inventario, recetas, nutrición, notificaciones, escaneos y precios de tiendas.
 
+Github: https://github.com/Francisc0Lozan0/tallerGraphQL.git
+
+despliegue: https://tallergraphql-ks5t.onrender.com
+
 ## Requisitos
 
 - Node.js 20 o superior
