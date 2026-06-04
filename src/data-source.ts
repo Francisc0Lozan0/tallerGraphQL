@@ -6,14 +6,19 @@ loadEnv();
 
 const sslValue = process.env.DB_SSL;
 const useSsl = sslValue ? sslValue === 'true' : true;
+const databaseUrl = process.env.DATABASE_URL;
 
 export default new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
-  username: process.env.DB_USERNAME || process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  ...(databaseUrl
+    ? { url: databaseUrl }
+    : {
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+        username: process.env.DB_USERNAME || process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+      }),
   entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   synchronize: false,

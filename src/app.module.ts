@@ -34,32 +34,43 @@ import { SeedModule } from './modules/seed/seed.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-      
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username:
-          configService.get<string>('DB_USERNAME') ||
-          configService.get<string>('DB_USER'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
-        synchronize: ((): boolean => {
-          const syncValue = configService.get<string>('DB_SYNC');
-          return syncValue ? syncValue === 'true' : false;
-        })(),
-        ssl: ((): boolean | { rejectUnauthorized: boolean } => {
-          const sslValue = configService.get<string>('DB_SSL');
-          const useSsl = sslValue ? sslValue === 'true' : true;
-          return useSsl ? { rejectUnauthorized: false } : false;
-        })(),
-        extra: ((): { ssl: { rejectUnauthorized: boolean } } | undefined => {
-          const sslValue = configService.get<string>('DB_SSL');
-          const useSsl = sslValue ? sslValue === 'true' : true;
-          return useSsl ? { ssl: { rejectUnauthorized: false } } : undefined;
-        })(),
-      }),
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+        const commonConfig = {
+          type: 'postgres' as const,
+          entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
+          synchronize: ((): boolean => {
+            const syncValue = configService.get<string>('DB_SYNC');
+            return syncValue ? syncValue === 'true' : false;
+          })(),
+          ssl: ((): boolean | { rejectUnauthorized: boolean } => {
+            const sslValue = configService.get<string>('DB_SSL');
+            const useSsl = sslValue ? sslValue === 'true' : true;
+            return useSsl ? { rejectUnauthorized: false } : false;
+          })(),
+          extra: ((): { ssl: { rejectUnauthorized: boolean } } | undefined => {
+            const sslValue = configService.get<string>('DB_SSL');
+            const useSsl = sslValue ? sslValue === 'true' : true;
+            return useSsl ? { ssl: { rejectUnauthorized: false } } : undefined;
+          })(),
+        };
+
+        return databaseUrl
+          ? {
+              ...commonConfig,
+              url: databaseUrl,
+            }
+          : {
+              ...commonConfig,
+              host: configService.get<string>('DB_HOST'),
+              port: configService.get<number>('DB_PORT'),
+              username:
+                configService.get<string>('DB_USERNAME') ||
+                configService.get<string>('DB_USER'),
+              password: configService.get<string>('DB_PASSWORD'),
+              database: configService.get<string>('DB_NAME'),
+            };
+      },
     }),
     AuthModule,
     InventoryModule,
