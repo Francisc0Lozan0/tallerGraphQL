@@ -38,7 +38,7 @@ export class Recipe {
   @Column({ name: "user_id", type: "char" })
   userId: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: "parent_recipe_id", type: "char", nullable: true })
   parentRecipeId: string | null;
 
@@ -50,7 +50,7 @@ export class Recipe {
   @Column({ type: "varchar" })
   name: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: "text", nullable: true })
   description: string | null;
 
@@ -74,7 +74,7 @@ export class Recipe {
   @Column({ type: "integer", default: 1 })
   servings: number;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: "image_url", type: "varchar", nullable: true })
   imageUrl: string | null;
 
@@ -126,7 +126,7 @@ export class Recipe {
   @Column({ name: "ni_sodium", type: "numeric", default: 0 })
   niSodium: number;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: "ni_serving_size", type: "varchar", nullable: true })
   niServingSize: string | null;
 

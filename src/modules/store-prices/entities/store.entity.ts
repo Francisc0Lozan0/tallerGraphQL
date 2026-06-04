@@ -21,11 +21,11 @@ export class Store {
   @Column({ type: 'varchar', length: 100 })
   name!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 500, nullable: true })
   address?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 50, nullable: true })
   city?: string | null;
 
@@ -37,11 +37,11 @@ export class Store {
   @Column({ type: 'numeric', precision: 10, scale: 6 })
   longitude!: number;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: 'phone_number', type: 'varchar', length: 20, nullable: true })
   phoneNumber?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 255, nullable: true })
   website?: string | null;
 

@@ -1,0 +1,664 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+enum ActivityLevel {
+  Activo
+  Ligero
+  Moderado
+  MuyActivo
+  Sedentario
+}
+
+type AssignRoleResponse {
+  message: String!
+  user: User
+}
+
+type AuthResponse {
+  access_token: String!
+  user: AuthUser!
+}
+
+type AuthUser {
+  email: String!
+  first_name: String!
+  id: String!
+  last_name: String!
+  role: String!
+}
+
+input ConfirmScanInput {
+  category: String
+  detectedName: String!
+  notes: String
+  productId: String
+  quantity: Float!
+  unit: String!
+}
+
+type ConfirmScanResponse {
+  saved: InventoryItem!
+}
+
+input ConsumeInventoryItemDto {
+  id: String!
+  quantity: Int!
+}
+
+input ConsumeInventoryItemsDto {
+  items: [ConsumeInventoryItemDto!]!
+}
+
+type ConsumeInventoryResponse {
+  removed: [InventoryItem!]!
+  updated: [InventoryItem!]!
+}
+
+input CreateInventoryItemDto {
+  barcode: String
+  category: String
+  expirationDate: String
+  location: String
+  notes: String
+  productId: String
+  productName: String!
+  purchaseDate: String
+  quantity: Float
+  unit: String
+  userId: String
+}
+
+input CreateNutritionGoalDto {
+  endDate: String
+  goalCarbohydratesGrams: Float!
+  goalDailyCalories: Int!
+  goalFatGrams: Float!
+  goalFiberGrams: Float!
+  goalProteinGrams: Float!
+  goalSodiumLimitMg: Float
+  goalSugarLimitGrams: Float
+  goalWaterMl: Int
+  startDate: String!
+}
+
+input CreateNutritionTrackerDto {
+  date: String!
+  notes: String
+  waterIntakeMl: Int
+}
+
+input CreateProductDto {
+  barcode: String
+  brand: String
+  category: String!
+  description: String
+  externalId: String
+  externalSource: String
+  imageUrl: String
+  name: String!
+  niCalories: Int
+  niCarbohydrates: Float
+  niFat: Float
+  niFiber: Float
+  niProtein: Float
+  niServingSize: String
+  niSodium: Float
+  niSugars: Float
+  unit: String!
+}
+
+input CreateRecipeInput {
+  category: String!
+  cookingTime: Int
+  description: String
+  difficulty: String!
+  imageUrl: String
+  isPublic: Boolean
+  name: String!
+  niCalories: Float
+  niCarbohydrates: Float
+  niFat: Float
+  niFiber: Float
+  niProtein: Float
+  niServingSize: String
+  niServingsPerRecipe: Int
+  niSodium: Float
+  niSugars: Float
+  preparationTime: Int
+  servings: Int
+}
+
+input CreateStoreInput {
+  address: String
+  city: String
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  phoneNumber: String
+  website: String
+}
+
+input CreateStorePriceInput {
+  isAvailable: Boolean
+  notes: String
+  price: Float!
+  productId: String!
+  storeId: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DeleteUserResponse {
+  deleted: Boolean!
+}
+
+enum DietType {
+  Sin_dieta
+  Vegan
+  Vegetarian
+}
+
+input ForgotPasswordDto {
+  email: String!
+}
+
+type ForgotPasswordResponse {
+  message: String!
+}
+
+input InventoryFilter {
+  category: String
+  q: String
+}
+
+type InventoryItem {
+  alertSent: Boolean!
+  barcode: String
+  category: String
+  createdAt: DateTime!
+  expirationDate: DateTime!
+  id: ID!
+  location: String
+  notes: String
+  product: Product
+  productId: String
+  productName: String!
+  purchaseDate: DateTime
+  quantity: Float!
+  unit: String!
+  updatedAt: DateTime!
+  user: User
+  userId: String!
+}
+
+type InventoryStats {
+  expired: Int!
+  expiringSoon: Int!
+  totalItems: Int!
+}
+
+input LoginDto {
+  email: String!
+  password: String!
+}
+
+type LogoutResponse {
+  message: String!
+}
+
+type Mutation {
+  assignRole(email: String!, role: String!): AssignRoleResponse!
+  confirmScan(input: ConfirmScanInput!): ConfirmScanResponse!
+  consumeInventoryItems(input: ConsumeInventoryItemsDto!): ConsumeInventoryResponse!
+  createInventoryItem(input: CreateInventoryItemDto!): InventoryItem!
+  createNutritionGoal(input: CreateNutritionGoalDto!): NutritionGoal!
+  createNutritionTracker(input: CreateNutritionTrackerDto!): NutritionTracker!
+  createProduct(input: CreateProductDto!): Product!
+  createRecipe(input: CreateRecipeInput!): Recipe!
+  createStore(input: CreateStoreInput!): Store!
+  createStorePrice(input: CreateStorePriceInput!): StorePrice!
+  deleteInventoryItem(id: String!): InventoryItem!
+  deleteProduct(id: String!): Product!
+  deleteRecipe(id: String!): Recipe!
+  deleteStore(id: String!): Boolean!
+  deleteStorePrice(productId: String!, storeId: String!): Boolean!
+  deleteUser(id: String!): DeleteUserResponse!
+  forgotPassword(input: ForgotPasswordDto!): ForgotPasswordResponse!
+  login(input: LoginDto!): AuthResponse!
+  logout: LogoutResponse!
+  prepareRecipe(id: String!, input: PrepareRecipeInput!): Recipe!
+  rateRecipe(id: String!, input: RateRecipeInput!): Recipe!
+  register(input: RegisterDto!): AuthResponse!
+  resetPassword(input: ResetPasswordDto!): AuthResponse!
+  updateInventoryItem(id: String!, input: UpdateInventoryItemDto!): InventoryItem!
+  updateMe(input: UpdateUserDto!): User!
+  updateNutritionGoal(id: String!, input: UpdateNutritionGoalDto!): NutritionGoal!
+  updateNutritionTracker(id: String!, input: UpdateNutritionTrackerDto!): NutritionTracker!
+  updateProduct(id: String!, input: UpdateProductDto!): Product!
+  updateRecipe(id: String!, input: UpdateRecipeInput!): Recipe!
+  updateStore(id: String!, input: UpdateStoreInput!): Store!
+  updateStorePrice(input: UpdateStorePriceInput!, productId: String!, storeId: String!): StorePrice!
+  updateUser(id: String!, input: UpdateUserDto!): User!
+  upsertNutritionProfile(input: NutritionProfileDto!): NutritionProfileResponseDto!
+  verifyResetCode(input: VerifyResetCodeDto!): VerifyResetCodeResponse!
+}
+
+type Notification {
+  createdAt: DateTime!
+  entityId: String
+  entityType: String
+  id: ID!
+  isRead: Boolean!
+  message: String!
+  title: String!
+  type: String!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type NutritionGoal {
+  createdAt: DateTime!
+  endDate: DateTime
+  goalCarbohydratesGrams: Float!
+  goalDailyCalories: Int!
+  goalFatGrams: Float!
+  goalFiberGrams: Float!
+  goalProteinGrams: Float!
+  goalSodiumLimitMg: Float
+  goalSugarLimitGrams: Float
+  goalWaterMl: Int
+  id: ID!
+  isActive: Boolean!
+  startDate: DateTime!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+input NutritionProfileDto {
+  dietType: DietType
+  excludedCategories: [String!]
+  excludedIngredients: [String!]
+  maxDailyCalories: Int
+  targetCarbs: Int
+  targetFat: Int
+  targetProtein: Int
+}
+
+type NutritionProfileResponseDto {
+  createdAt: DateTime!
+  dietType: DietType!
+  excludedCategories: [String!]!
+  excludedIngredients: [String!]!
+  id: ID!
+  maxDailyCalories: Int
+  strictInventoryOnly: Boolean!
+  targetCarbs: Int
+  targetFat: Int
+  targetProtein: Int
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type NutritionTracker {
+  createdAt: DateTime!
+  date: DateTime!
+  id: ID!
+  notes: String
+  totalCalories: Float!
+  totalCarbohydrates: Float!
+  totalFat: Float!
+  totalFiber: Float!
+  totalProtein: Float!
+  updatedAt: DateTime!
+  userId: String!
+  waterIntakeMl: Int!
+}
+
+input PrepareRecipeIngredientInput {
+  productId: String
+  quantity: Float!
+  unit: String!
+}
+
+input PrepareRecipeInput {
+  ingredients: [PrepareRecipeIngredientInput!]!
+  servings: Int
+}
+
+type Product {
+  barcode: String
+  brand: String
+  category: String!
+  createdAt: DateTime!
+  description: String
+  externalId: String
+  externalSource: String
+  id: ID!
+  imageUrl: String
+  name: String!
+  niCalories: Int!
+  niCarbohydrates: Float!
+  niFat: Float!
+  niFiber: Float!
+  niProtein: Float!
+  niServingSize: String
+  niSodium: Float!
+  niSugars: Float!
+  unit: String!
+  updatedAt: DateTime!
+}
+
+input ProductFilter {
+  category: String
+  q: String
+}
+
+type Query {
+  activeNutritionGoal: NutritionGoal
+  inventoryItem(id: String!): InventoryItem!
+  inventoryItems(filter: InventoryFilter, userId: String): [InventoryItem!]!
+  inventoryStats(userId: String): InventoryStats!
+  me: User!
+  notifications: [Notification!]!
+  nutritionProfile: NutritionProfileResponseDto!
+  nutritionTrackerByDate(date: String!): NutritionTracker
+  pricesByProduct(productId: String!): [StorePrice!]!
+  pricesByStore(storeId: String!): [StorePrice!]!
+  product(id: String!): Product!
+  productByBarcode(barcode: String!): Product
+  productSmartSearch(q: String!): [Product!]!
+  products(filter: ProductFilter): [Product!]!
+  recipe(id: String!): Recipe!
+  recipes(filter: RecipeFilterInput): [Recipe!]!
+  store(id: String!): Store!
+  storePrice(productId: String!, storeId: String!): StorePrice!
+  stores: [Store!]!
+  unreadNotificationsCount: Int!
+  user(id: String!): User!
+  users: [User!]!
+}
+
+input RateRecipeInput {
+  rating: Int!
+}
+
+type Recipe {
+  category: String!
+  cookingTime: Int
+  createdAt: DateTime!
+  description: String
+  difficulty: String!
+  id: ID!
+  imageUrl: String
+  ingredients: [RecipeIngredient!]!
+  isCustom: Boolean!
+  isPublic: Boolean!
+  isVegan: Boolean!
+  isVegetarian: Boolean!
+  name: String!
+  niCalories: Float!
+  niCarbohydrates: Float!
+  niFat: Float!
+  niFiber: Float!
+  niProtein: Float!
+  niServingSize: String
+  niServingsPerRecipe: Int!
+  niSodium: Float!
+  niSugars: Float!
+  parentRecipeId: String
+  preparationTime: Int
+  rating: Float!
+  ratingCount: Int!
+  servings: Int!
+  steps: [RecipeStep!]!
+  updatedAt: DateTime!
+  user: User
+  userId: String!
+}
+
+input RecipeFilterInput {
+  category: String
+  difficulty: String
+  isPublic: Boolean
+  q: String
+}
+
+type RecipeIngredient {
+  createdAt: DateTime!
+  genericName: String
+  id: ID!
+  optional: Boolean!
+  product: Product
+  productId: String
+  quantity: Float!
+  recipeId: String!
+  unit: String!
+  updatedAt: DateTime!
+}
+
+type RecipeStep {
+  createdAt: DateTime!
+  description: String!
+  duration: Int
+  id: ID!
+  order: Int!
+  recipeId: String!
+  updatedAt: DateTime!
+}
+
+input RegisterDto {
+  activity_level: ActivityLevel
+  birth_date: String
+  diet_type: DietType
+  email: String!
+  excluded_categories: [String!]
+  excluded_ingredients: [String!]
+  first_name: String!
+  goal: UserNutritionGoal
+  height_cm: Float
+  last_name: String!
+  password: String!
+  phone_number: String
+  sex: Sex
+  weight_kg: Float
+}
+
+input ResetPasswordDto {
+  newPassword: String!
+  token: String!
+}
+
+enum Sex {
+  Hombre
+  Mujer
+}
+
+type Store {
+  address: String
+  city: String
+  createdAt: DateTime!
+  id: ID!
+  isActive: Boolean!
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  phoneNumber: String
+  updatedAt: DateTime!
+  website: String
+}
+
+type StorePrice {
+  createdAt: DateTime!
+  id: ID!
+  isAvailable: Boolean!
+  notes: String
+  price: Float!
+  product: Product
+  productId: String!
+  store: Store
+  storeId: String!
+  updatedAt: DateTime!
+}
+
+input UpdateInventoryItemDto {
+  barcode: String
+  category: String
+  expirationDate: String
+  location: String
+  notes: String
+  productId: String
+  productName: String
+  purchaseDate: String
+  quantity: Float
+  unit: String
+  userId: String
+}
+
+input UpdateNutritionGoalDto {
+  endDate: String
+  goalCarbohydratesGrams: Float
+  goalDailyCalories: Int
+  goalFatGrams: Float
+  goalFiberGrams: Float
+  goalProteinGrams: Float
+  goalSodiumLimitMg: Float
+  goalSugarLimitGrams: Float
+  goalWaterMl: Int
+  startDate: String
+}
+
+input UpdateNutritionTrackerDto {
+  date: String
+  notes: String
+  waterIntakeMl: Int
+}
+
+input UpdateProductDto {
+  barcode: String
+  brand: String
+  category: String
+  description: String
+  externalId: String
+  externalSource: String
+  imageUrl: String
+  name: String
+  niCalories: Int
+  niCarbohydrates: Float
+  niFat: Float
+  niFiber: Float
+  niProtein: Float
+  niServingSize: String
+  niSodium: Float
+  niSugars: Float
+  unit: String
+}
+
+input UpdateRecipeInput {
+  category: String
+  cookingTime: Int
+  description: String
+  difficulty: String
+  imageUrl: String
+  isPublic: Boolean
+  name: String
+  niCalories: Float
+  niCarbohydrates: Float
+  niFat: Float
+  niFiber: Float
+  niProtein: Float
+  niServingSize: String
+  niServingsPerRecipe: Int
+  niSodium: Float
+  niSugars: Float
+  preparationTime: Int
+  servings: Int
+}
+
+input UpdateStoreInput {
+  address: String
+  city: String
+  isActive: Boolean
+  latitude: Float
+  longitude: Float
+  name: String
+  phoneNumber: String
+  website: String
+}
+
+input UpdateStorePriceInput {
+  isAvailable: Boolean
+  notes: String
+  price: Float
+}
+
+input UpdateUserDto {
+  activityLevel: ActivityLevel
+  birthDate: String
+  email: String
+  emailNotificationsEnabled: Boolean
+  excludedCategories: [String!]
+  excludedIngredients: [String!]
+  firstName: String
+  goal: UserNutritionGoal
+  goalCarbsGrams: Int
+  goalDailyCalories: Int
+  goalFatGrams: Int
+  goalFiberGrams: Int
+  goalProteinGrams: Int
+  heightCm: Float
+  isActive: Boolean
+  lastName: String
+  phoneNumber: String
+  profileImage: String
+  role: String
+  sex: Sex
+  smsNotificationsEnabled: Boolean
+  weightKg: Float
+}
+
+type User {
+  activityLevel: ActivityLevel!
+  birthDate: DateTime!
+  createdAt: DateTime!
+  email: String!
+  emailNotificationsEnabled: Boolean!
+  firstName: String!
+  goal: UserNutritionGoal!
+  goalCarbsGrams: Int
+  goalDailyCalories: Int
+  goalFatGrams: Int
+  goalFiberGrams: Int
+  goalProteinGrams: Int
+  heightCm: Float!
+  id: ID!
+  isActive: Boolean!
+  lastLogin: DateTime
+  lastName: String!
+  phoneNumber: String
+  profileImage: String
+  role: String!
+  sex: Sex!
+  smsNotificationsEnabled: Boolean!
+  updatedAt: DateTime!
+  weightKg: Float!
+}
+
+enum UserNutritionGoal {
+  Bajar
+  Mantener
+  Subir
+}
+
+input VerifyResetCodeDto {
+  code: String!
+  email: String!
+}
+
+type VerifyResetCodeResponse {
+  message: String!
+  resetToken: String!
+}

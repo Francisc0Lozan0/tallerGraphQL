@@ -29,7 +29,7 @@ export enum NutritionGoal {
 
 registerEnumType(Sex, { name: 'Sex' });
 registerEnumType(ActivityLevel, { name: 'ActivityLevel' });
-registerEnumType(NutritionGoal, { name: 'NutritionGoal' });
+registerEnumType(NutritionGoal, { name: 'UserNutritionGoal' });
 
 @ObjectType()
 @Entity({ name: 'users' })

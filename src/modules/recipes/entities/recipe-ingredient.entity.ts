@@ -25,11 +25,11 @@ export class RecipeIngredient {
   @Column({ name: "recipe_id", type: "char" })
   recipeId!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: "product_id", type: "char", length: 24, nullable: true })
   productId?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({
     name: "generic_name",
     type: "varchar",

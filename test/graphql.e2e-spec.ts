@@ -50,7 +50,7 @@ describe('GraphQL API integration (e2e)', () => {
         height_cm: 180,
         activity_level: 'moderado',
         goal: 'mantener',
-        diet_type: 'omnivore',
+        diet_type: 'sin_dieta',
         excluded_ingredients: [],
         excluded_categories: [],
       })
@@ -71,7 +71,7 @@ describe('GraphQL API integration (e2e)', () => {
         height_cm: 165,
         activity_level: 'ligero',
         goal: 'mantener',
-        diet_type: 'omnivore',
+        diet_type: 'sin_dieta',
         excluded_ingredients: [],
         excluded_categories: [],
       })

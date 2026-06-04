@@ -6,6 +6,7 @@ import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { InventoryItem } from '../src/modules/inventory/entities/inventory-item.entity';
+import { Product } from '../src/modules/products/entities/product.entity';
 import { Recipe } from '../src/modules/recipes/entities/recipe.entity';
 import { RecipeIngredient } from '../src/modules/recipes/entities/recipe-ingredient.entity';
 
@@ -42,7 +43,7 @@ describe('API integration (e2e)', () => {
         height_cm: 180,
         activity_level: 'moderado',
         goal: 'mantener',
-        diet_type: 'omnivore',
+        diet_type: 'sin_dieta',
         excluded_ingredients: [],
         excluded_categories: [],
       })
@@ -64,7 +65,7 @@ describe('API integration (e2e)', () => {
         height_cm: 165,
         activity_level: 'ligero',
         goal: 'mantener',
-        diet_type: 'omnivore',
+        diet_type: 'sin_dieta',
         excluded_ingredients: [],
         excluded_categories: [],
       })
@@ -177,8 +178,16 @@ describe('API integration (e2e)', () => {
 
   it('GET /recommendations/suggest returns internal recipe recommendations', async () => {
     const productId = randomBytes(12).toString('hex');
+    const productRepository = dataSource.getRepository(Product);
     const recipeRepository = dataSource.getRepository(Recipe);
     const inventoryRepository = dataSource.getRepository(InventoryItem);
+
+    await productRepository.save({
+      id: productId,
+      name: 'Tomate',
+      category: 'vegetables',
+      unit: 'g',
+    } as Product);
 
     const recipe = await recipeRepository.save({
       id: 'r',

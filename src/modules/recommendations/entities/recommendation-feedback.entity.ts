@@ -33,7 +33,7 @@ export class RecommendationFeedback {
   @Column({ type: 'boolean', default: false })
   prepared!: boolean;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 500, nullable: true })
   feedback?: string | null;
 

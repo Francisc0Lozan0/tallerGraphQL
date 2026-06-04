@@ -49,7 +49,7 @@ export class StorePrice {
   @Column({ name: 'is_available', type: 'boolean', default: true })
   isAvailable!: boolean;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 255, nullable: true })
   notes?: string | null;
 
