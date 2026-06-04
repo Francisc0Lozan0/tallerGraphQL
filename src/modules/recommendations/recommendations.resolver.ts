@@ -141,7 +141,7 @@ export class RecommendationsResolver {
 
   @Query(() => [RecommendationFeedback])
   @UseGuards(JwtAuthGuard)
-  topRatedRecommendations(@Args('limit', { nullable: true }) limit?: number) {
+  topRatedRecommendations(@Args('limit', { type: () => Int, nullable: true }) limit?: number) {
     return this.recommendationsService.getTopRated(limit);
   }
 

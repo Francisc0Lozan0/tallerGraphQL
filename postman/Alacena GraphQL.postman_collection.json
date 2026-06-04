@@ -1,0 +1,3030 @@
+{
+  "info": {
+    "_postman_id": "9e4c0b58-65d0-46cc-9f1a-graphql-all",
+    "name": "Alacena GraphQL - Todas las APIs",
+    "description": "Coleccion GraphQL para probar todas las operaciones expuestas por los resolvers del proyecto Alacena. Ejecuta primero Setup y Auth. La URL usa {{baseUrl}}/graphql.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.environment.get(\"runSuffix\")) {",
+          "  const suffix = Date.now().toString();",
+          "  pm.environment.set(\"runSuffix\", suffix);",
+          "  pm.environment.set(\"userEmail\", `user.${suffix}@example.com`);",
+          "  pm.environment.set(\"adminEmail\", `admin.${suffix}@example.com`);",
+          "}",
+          "if (!pm.environment.get(\"password\")) pm.environment.set(\"password\", \"Admin123!\");",
+          "pm.environment.set(\"today\", new Date().toISOString().slice(0, 10));",
+          "pm.environment.set(\"futureDate\", new Date(Date.now() + 14 * 86400000).toISOString());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "admin_access_token",
+      "value": ""
+    },
+    {
+      "key": "userEmail",
+      "value": ""
+    },
+    {
+      "key": "adminEmail",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": "Admin123!"
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "admin_user_id",
+      "value": ""
+    },
+    {
+      "key": "product_id",
+      "value": ""
+    },
+    {
+      "key": "inventory_item_id",
+      "value": ""
+    },
+    {
+      "key": "recipe_id",
+      "value": ""
+    },
+    {
+      "key": "tracker_id",
+      "value": ""
+    },
+    {
+      "key": "goal_id",
+      "value": ""
+    },
+    {
+      "key": "store_id",
+      "value": ""
+    },
+    {
+      "key": "store_price_id",
+      "value": ""
+    },
+    {
+      "key": "recommendation_feedback_id",
+      "value": ""
+    },
+    {
+      "key": "today",
+      "value": ""
+    },
+    {
+      "key": "futureDate",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Reset variables (GraphQL health)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now().toString();",
+                  "pm.environment.set(\"runSuffix\", suffix);",
+                  "pm.environment.set(\"userEmail\", `user.${suffix}@example.com`);",
+                  "pm.environment.set(\"adminEmail\", `admin.${suffix}@example.com`);",
+                  "pm.environment.set(\"password\", \"Admin123!\");",
+                  "pm.environment.set(\"today\", new Date().toISOString().slice(0, 10));",
+                  "pm.environment.set(\"futureDate\", new Date(Date.now() + 14 * 86400000).toISOString());",
+                  "[\"access_token\",\"admin_access_token\",\"user_id\",\"admin_user_id\",\"product_id\",\"inventory_item_id\",\"recipe_id\",\"tracker_id\",\"goal_id\",\"store_id\",\"store_price_id\",\"recommendation_feedback_id\"].forEach((key) => pm.environment.unset(key));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "Inicializa variables para correr la coleccion varias veces y valida que /graphql responda.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Health { __typename }\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.register && json.data.register.access_token) {",
+                  "  pm.environment.set(\"access_token\", json.data && json.data.register && json.data.register.access_token);",
+                  "}",
+                  "if (json.data && json.data.register && json.data.register.user.id) {",
+                  "  pm.environment.set(\"user_id\", json.data && json.data.register && json.data.register.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation Register($input: RegisterDto!) {\\n  register(input: $input) {\\n    access_token\\n    user { id email first_name last_name role }\\n  }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"email\": \"{{userEmail}}\",\n      \"password\": \"{{password}}\",\n      \"first_name\": \"Usuario\",\n      \"last_name\": \"Prueba\",\n      \"phone_number\": \"+573001112233\",\n      \"birth_date\": \"1998-05-14\",\n      \"sex\": \"Hombre\",\n      \"weight_kg\": 70,\n      \"height_cm\": 175,\n      \"activity_level\": \"Moderado\",\n      \"goal\": \"Mantener\",\n      \"diet_type\": \"Sin_dieta\",\n      \"excluded_ingredients\": [],\n      \"excluded_categories\": []\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Login user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.login && json.data.login.access_token) {",
+                  "  pm.environment.set(\"access_token\", json.data && json.data.login && json.data.login.access_token);",
+                  "}",
+                  "if (json.data && json.data.login && json.data.login.user.id) {",
+                  "  pm.environment.set(\"user_id\", json.data && json.data.login && json.data.login.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation Login($input: LoginDto!) {\\n  login(input: $input) {\\n    access_token\\n    user { id email first_name last_name role }\\n  }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"email\": \"{{userEmail}}\",\n      \"password\": \"{{password}}\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Register admin candidate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.register && json.data.register.access_token) {",
+                  "  pm.environment.set(\"admin_access_token\", json.data && json.data.register && json.data.register.access_token);",
+                  "}",
+                  "if (json.data && json.data.register && json.data.register.user.id) {",
+                  "  pm.environment.set(\"admin_user_id\", json.data && json.data.register && json.data.register.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation Register($input: RegisterDto!) {\\n  register(input: $input) {\\n    access_token\\n    user { id email first_name last_name role }\\n  }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"email\": \"{{adminEmail}}\",\n      \"password\": \"{{password}}\",\n      \"first_name\": \"Admin\",\n      \"last_name\": \"Prueba\",\n      \"phone_number\": \"+573009998877\",\n      \"birth_date\": \"1995-01-10\",\n      \"sex\": \"Mujer\",\n      \"weight_kg\": 65,\n      \"height_cm\": 168,\n      \"activity_level\": \"Activo\",\n      \"goal\": \"Mantener\",\n      \"diet_type\": \"Sin_dieta\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ForgotPassword($input: ForgotPasswordDto!) {\\n  forgotPassword(input: $input) { message }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"email\": \"{{userEmail}}\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Verify reset code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation VerifyResetCode($input: VerifyResetCodeDto!) {\\n  verifyResetCode(input: $input) { resetToken message }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"email\": \"{{userEmail}}\",\n      \"code\": \"123456\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "Reemplaza code por el codigo real recibido."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ResetPassword($input: ResetPasswordDto!) {\\n  resetPassword(input: $input) {\\n    access_token\\n    user { id email role }\\n  }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"token\": \"{{reset_token}}\",\n      \"newPassword\": \"{{password}}\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation Logout {\\n  logout { message }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users and Roles",
+      "item": [
+        {
+          "name": "Me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Me {\\n  me { id\\nemail\\nfirstName\\nlastName\\nrole\\nphoneNumber\\nbirthDate\\nsex\\nweightKg\\nheightCm\\nactivityLevel\\ngoal\\nemailNotificationsEnabled\\nsmsNotificationsEnabled }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateMe($input: UpdateUserDto!) {\\n  updateMe(input: $input) { id\\nemail\\nfirstName\\nlastName\\nrole\\nphoneNumber\\nbirthDate\\nsex\\nweightKg\\nheightCm\\nactivityLevel\\ngoal\\nemailNotificationsEnabled\\nsmsNotificationsEnabled }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"firstName\": \"Usuario Editado\",\n      \"smsNotificationsEnabled\": false,\n      \"emailNotificationsEnabled\": true\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "List users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Users {\\n  users { id\\nemail\\nfirstName\\nlastName\\nrole\\nphoneNumber\\nbirthDate\\nsex\\nweightKg\\nheightCm\\nactivityLevel\\ngoal\\nemailNotificationsEnabled\\nsmsNotificationsEnabled }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get user by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query User($id: String!) {\\n  user(id: $id) { id\\nemail\\nfirstName\\nlastName\\nrole\\nphoneNumber\\nbirthDate\\nsex\\nweightKg\\nheightCm\\nactivityLevel\\ngoal\\nemailNotificationsEnabled\\nsmsNotificationsEnabled }\\n}\",\n  \"variables\": {\n    \"id\": \"{{user_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update user by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateUser($id: String!, $input: UpdateUserDto!) {\\n  updateUser(id: $id, input: $input) { id\\nemail\\nfirstName\\nlastName\\nrole\\nphoneNumber\\nbirthDate\\nsex\\nweightKg\\nheightCm\\nactivityLevel\\ngoal\\nemailNotificationsEnabled\\nsmsNotificationsEnabled }\\n}\",\n  \"variables\": {\n    \"id\": \"{{user_id}}\",\n    \"input\": {\n      \"lastName\": \"Actualizado\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation AssignRole($email: String!, $role: String!) {\\n  assignRole(email: $email, role: $role) {\\n    message\\n    user { id email role }\\n  }\\n}\",\n  \"variables\": {\n    \"email\": \"{{userEmail}}\",\n    \"role\": \"nutritionist\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeleteUser($id: String!) {\\n  deleteUser(id: $id) { deleted }\\n}\",\n  \"variables\": {\n    \"id\": \"{{user_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "Cuidado: elimina el usuario indicado. Usalo al final.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createProduct && json.data.createProduct.id) {",
+                  "  pm.environment.set(\"product_id\", json.data && json.data.createProduct && json.data.createProduct.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateProduct($input: CreateProductDto!) {\\n  createProduct(input: $input) { id\\nname\\ncategory\\nunit\\nbarcode\\nbrand\\ndescription\\nimageUrl\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\nniFiber\\nniSugars\\nniSodium\\nniServingSize }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"name\": \"Manzana Roja {{runSuffix}}\",\n      \"category\": \"fruits\",\n      \"unit\": \"kg\",\n      \"barcode\": \"770{{runSuffix}}\",\n      \"brand\": \"Alacena\",\n      \"niCalories\": 52,\n      \"niProtein\": 0.3,\n      \"niCarbohydrates\": 14,\n      \"niFat\": 0.2,\n      \"niFiber\": 2.4,\n      \"niSugars\": 10.4,\n      \"niSodium\": 1,\n      \"niServingSize\": \"100 g\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Products($filter: ProductFilter) {\\n  products(filter: $filter) { id\\nname\\ncategory\\nunit\\nbarcode\\nbrand\\ndescription\\nimageUrl\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\nniFiber\\nniSugars\\nniSodium\\nniServingSize }\\n}\",\n  \"variables\": {\n    \"filter\": {\n      \"q\": \"manzana\",\n      \"category\": \"fruits\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get product by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Product($id: String!) {\\n  product(id: $id) { id\\nname\\ncategory\\nunit\\nbarcode\\nbrand\\ndescription\\nimageUrl\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\nniFiber\\nniSugars\\nniSodium\\nniServingSize }\\n}\",\n  \"variables\": {\n    \"id\": \"{{product_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get product by barcode",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ProductByBarcode($barcode: String!) {\\n  productByBarcode(barcode: $barcode) { id\\nname\\ncategory\\nunit\\nbarcode\\nbrand\\ndescription\\nimageUrl\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\nniFiber\\nniSugars\\nniSodium\\nniServingSize }\\n}\",\n  \"variables\": {\n    \"barcode\": \"770{{runSuffix}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Smart search products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ProductSmartSearch($q: String!) {\\n  productSmartSearch(q: $q) { id\\nname\\ncategory\\nunit\\nbarcode\\nbrand\\ndescription\\nimageUrl\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\nniFiber\\nniSugars\\nniSodium\\nniServingSize }\\n}\",\n  \"variables\": {\n    \"q\": \"manzana\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateProduct($id: String!, $input: UpdateProductDto!) {\\n  updateProduct(id: $id, input: $input) { id\\nname\\ncategory\\nunit\\nbarcode\\nbrand\\ndescription\\nimageUrl\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\nniFiber\\nniSugars\\nniSodium\\nniServingSize }\\n}\",\n  \"variables\": {\n    \"id\": \"{{product_id}}\",\n    \"input\": {\n      \"description\": \"Producto actualizado desde Postman\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeleteProduct($id: String!) {\\n  deleteProduct(id: $id) { id\\nname\\ncategory\\nunit\\nbarcode\\nbrand\\ndescription\\nimageUrl\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\nniFiber\\nniSugars\\nniSodium\\nniServingSize }\\n}\",\n  \"variables\": {\n    \"id\": \"{{product_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "Usalo al final si quieres limpiar el producto creado.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "Create inventory item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createInventoryItem && json.data.createInventoryItem.id) {",
+                  "  pm.environment.set(\"inventory_item_id\", json.data && json.data.createInventoryItem && json.data.createInventoryItem.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateInventoryItem($input: CreateInventoryItemDto!) {\\n  createInventoryItem(input: $input) { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"productId\": \"{{product_id}}\",\n      \"productName\": \"Manzana Roja\",\n      \"category\": \"fruits\",\n      \"quantity\": 2,\n      \"unit\": \"kg\",\n      \"purchaseDate\": \"{{today}}\",\n      \"expirationDate\": \"{{futureDate}}\",\n      \"location\": \"Cocina\",\n      \"notes\": \"Creado desde Postman GraphQL\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "List inventory items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query InventoryItems($filter: InventoryFilter, $userId: String) {\\n  inventoryItems(filter: $filter, userId: $userId) { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"filter\": {\n      \"q\": \"manzana\",\n      \"category\": \"fruits\"\n    },\n    \"userId\": null\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Inventory stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query InventoryStats($userId: String) {\\n  inventoryStats(userId: $userId) {\\n    totalItems\\n    expiringSoon\\n    expired\\n  }\\n}\",\n  \"variables\": {\n    \"userId\": null\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get inventory item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query InventoryItem($id: String!) {\\n  inventoryItem(id: $id) { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{inventory_item_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update inventory item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateInventoryItem($id: String!, $input: UpdateInventoryItemDto!) {\\n  updateInventoryItem(id: $id, input: $input) { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{inventory_item_id}}\",\n    \"input\": {\n      \"quantity\": 3,\n      \"location\": \"Nevera\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Consume inventory items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ConsumeInventoryItems($input: ConsumeInventoryItemsDto!) {\\n  consumeInventoryItems(input: $input) {\\n    updated { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n    removed { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n  }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"items\": [\n        {\n          \"id\": \"{{inventory_item_id}}\",\n          \"quantity\": 1\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Delete inventory item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeleteInventoryItem($id: String!) {\\n  deleteInventoryItem(id: $id) { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{inventory_item_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Nutrition",
+      "item": [
+        {
+          "name": "Get nutrition profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query NutritionProfile {\\n  nutritionProfile { id\\nuserId\\ndietType\\nexcludedIngredients\\nexcludedCategories\\nmaxDailyCalories\\ntargetProtein\\ntargetCarbs\\ntargetFat\\nstrictInventoryOnly }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Upsert nutrition profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpsertNutritionProfile($input: NutritionProfileDto!) {\\n  upsertNutritionProfile(input: $input) { id\\nuserId\\ndietType\\nexcludedIngredients\\nexcludedCategories\\nmaxDailyCalories\\ntargetProtein\\ntargetCarbs\\ntargetFat\\nstrictInventoryOnly }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"dietType\": \"Sin_dieta\",\n      \"excludedIngredients\": [\n        \"mani\"\n      ],\n      \"excludedCategories\": [],\n      \"maxDailyCalories\": 2200,\n      \"targetProtein\": 120,\n      \"targetCarbs\": 250,\n      \"targetFat\": 70\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Create nutrition tracker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createNutritionTracker && json.data.createNutritionTracker.id) {",
+                  "  pm.environment.set(\"tracker_id\", json.data && json.data.createNutritionTracker && json.data.createNutritionTracker.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateNutritionTracker($input: CreateNutritionTrackerDto!) {\\n  createNutritionTracker(input: $input) { id\\nuserId\\ndate\\nwaterIntakeMl\\nnotes\\ntotalCalories\\ntotalProtein\\ntotalCarbohydrates\\ntotalFat\\ntotalFiber }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"date\": \"{{today}}\",\n      \"waterIntakeMl\": 1200,\n      \"notes\": \"Dia de prueba\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get tracker by date",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query NutritionTrackerByDate($date: String!) {\\n  nutritionTrackerByDate(date: $date) { id\\nuserId\\ndate\\nwaterIntakeMl\\nnotes\\ntotalCalories\\ntotalProtein\\ntotalCarbohydrates\\ntotalFat\\ntotalFiber }\\n}\",\n  \"variables\": {\n    \"date\": \"{{today}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update nutrition tracker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateNutritionTracker($id: String!, $input: UpdateNutritionTrackerDto!) {\\n  updateNutritionTracker(id: $id, input: $input) { id\\nuserId\\ndate\\nwaterIntakeMl\\nnotes\\ntotalCalories\\ntotalProtein\\ntotalCarbohydrates\\ntotalFat\\ntotalFiber }\\n}\",\n  \"variables\": {\n    \"id\": \"{{tracker_id}}\",\n    \"input\": {\n      \"waterIntakeMl\": 1800,\n      \"notes\": \"Actualizado desde Postman\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Create nutrition goal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createNutritionGoal && json.data.createNutritionGoal.id) {",
+                  "  pm.environment.set(\"goal_id\", json.data && json.data.createNutritionGoal && json.data.createNutritionGoal.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateNutritionGoal($input: CreateNutritionGoalDto!) {\\n  createNutritionGoal(input: $input) { id\\nuserId\\nstartDate\\nendDate\\nisActive\\ngoalDailyCalories\\ngoalProteinGrams\\ngoalCarbohydratesGrams\\ngoalFatGrams\\ngoalFiberGrams\\ngoalSugarLimitGrams\\ngoalSodiumLimitMg\\ngoalWaterMl }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"startDate\": \"{{today}}\",\n      \"endDate\": null,\n      \"goalDailyCalories\": 2200,\n      \"goalProteinGrams\": 120,\n      \"goalCarbohydratesGrams\": 250,\n      \"goalFatGrams\": 70,\n      \"goalFiberGrams\": 30,\n      \"goalSugarLimitGrams\": 50,\n      \"goalSodiumLimitMg\": 2300,\n      \"goalWaterMl\": 2000\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Active nutrition goal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ActiveNutritionGoal {\\n  activeNutritionGoal { id\\nuserId\\nstartDate\\nendDate\\nisActive\\ngoalDailyCalories\\ngoalProteinGrams\\ngoalCarbohydratesGrams\\ngoalFatGrams\\ngoalFiberGrams\\ngoalSugarLimitGrams\\ngoalSodiumLimitMg\\ngoalWaterMl }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update nutrition goal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateNutritionGoal($id: String!, $input: UpdateNutritionGoalDto!) {\\n  updateNutritionGoal(id: $id, input: $input) { id\\nuserId\\nstartDate\\nendDate\\nisActive\\ngoalDailyCalories\\ngoalProteinGrams\\ngoalCarbohydratesGrams\\ngoalFatGrams\\ngoalFiberGrams\\ngoalSugarLimitGrams\\ngoalSodiumLimitMg\\ngoalWaterMl }\\n}\",\n  \"variables\": {\n    \"id\": \"{{goal_id}}\",\n    \"input\": {\n      \"goalWaterMl\": 2500\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Recipes",
+      "item": [
+        {
+          "name": "Create recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createRecipe && json.data.createRecipe.id) {",
+                  "  pm.environment.set(\"recipe_id\", json.data && json.data.createRecipe && json.data.createRecipe.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateRecipe($input: CreateRecipeInput!) {\\n  createRecipe(input: $input) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"name\": \"Ensalada {{runSuffix}}\",\n      \"description\": \"Receta de prueba\",\n      \"category\": \"salads\",\n      \"difficulty\": \"easy\",\n      \"preparationTime\": 10,\n      \"cookingTime\": 0,\n      \"servings\": 2,\n      \"isPublic\": true,\n      \"niCalories\": 250,\n      \"niProtein\": 6,\n      \"niCarbohydrates\": 30,\n      \"niFat\": 10\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "List recipes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Recipes($filter: RecipeFilterInput) {\\n  recipes(filter: $filter) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"filter\": {\n      \"q\": \"ensalada\",\n      \"category\": \"salads\",\n      \"difficulty\": \"easy\",\n      \"isPublic\": true\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get recipe by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Recipe($id: String!) {\\n  recipe(id: $id) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recipe_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateRecipe($id: String!, $input: UpdateRecipeInput!) {\\n  updateRecipe(id: $id, input: $input) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recipe_id}}\",\n    \"input\": {\n      \"difficulty\": \"medium\",\n      \"servings\": 3\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Rate recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation RateRecipe($id: String!, $input: RateRecipeInput!) {\\n  rateRecipe(id: $id, input: $input) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recipe_id}}\",\n    \"input\": {\n      \"rating\": 5\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Prepare recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation PrepareRecipe($id: String!, $input: PrepareRecipeInput!) {\\n  prepareRecipe(id: $id, input: $input) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recipe_id}}\",\n    \"input\": {\n      \"servings\": 1,\n      \"ingredients\": [\n        {\n          \"productId\": \"{{product_id}}\",\n          \"quantity\": 1,\n          \"unit\": \"kg\"\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Delete recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeleteRecipe($id: String!) {\\n  deleteRecipe(id: $id) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recipe_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "item": [
+        {
+          "name": "Suggest recommendations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query RecommendationsSuggest($input: RecommendationSuggestInput!) {\\n  recommendationsSuggest(input: $input) { id\\nname\\ndescription\\ncategory\\ndifficulty\\npreparationTime\\ncookingTime\\nservings\\nrating\\nratingCount\\nisPublic\\nisCustom\\nniCalories\\nniProtein\\nniCarbohydrates\\nniFat\\ningredients {\\n  id\\n  genericName\\n  productId\\n  quantity\\n  unit\\n}\\nsteps {\\n  id\\n  order\\n  description\\n  duration\\n}\\nuser {\\n  id\\n  email\\n} }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"date\": \"{{today}}\",\n      \"strict\": false,\n      \"limit\": 5,\n      \"q\": \"ensalada\",\n      \"mealType\": \"lunch\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "Consulta GraphQL de recomendaciones."
+          },
+          "response": []
+        },
+        {
+          "name": "Create recommendation feedback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createRecommendationFeedback && json.data.createRecommendationFeedback.id) {",
+                  "  pm.environment.set(\"recommendation_feedback_id\", json.data && json.data.createRecommendationFeedback && json.data.createRecommendationFeedback.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateRecommendationFeedback($input: CreateRecommendationFeedbackDto!) {\\n  createRecommendationFeedback(input: $input) { id\\nrecipeId\\nuserId\\nrating\\nprepared\\nfeedback\\ncreatedAt\\nupdatedAt }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"recipeId\": \"{{recipe_id}}\",\n      \"rating\": 5,\n      \"prepared\": true,\n      \"feedback\": \"like\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": "Consulta GraphQL de recomendaciones."
+          },
+          "response": []
+        },
+        {
+          "name": "List recommendations feedback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Recommendations($recipeId: String) {\\n  recommendations(recipeId: $recipeId) { id\\nrecipeId\\nuserId\\nrating\\nprepared\\nfeedback\\ncreatedAt\\nupdatedAt }\\n}\",\n  \"variables\": {\n    \"recipeId\": \"{{recipe_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Top rated recommendations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query TopRatedRecommendations($limit: Int) {\\n  topRatedRecommendations(limit: $limit) { id\\nrecipeId\\nuserId\\nrating\\nprepared\\nfeedback\\ncreatedAt\\nupdatedAt }\\n}\",\n  \"variables\": {\n    \"limit\": 10\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get recommendation feedback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Recommendation($id: String!) {\\n  recommendation(id: $id) { id\\nrecipeId\\nuserId\\nrating\\nprepared\\nfeedback\\ncreatedAt\\nupdatedAt }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recommendation_feedback_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update recommendation feedback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateRecommendationFeedback($id: String!, $input: UpdateRecommendationFeedbackDto!) {\\n  updateRecommendationFeedback(id: $id, input: $input) { id\\nrecipeId\\nuserId\\nrating\\nprepared\\nfeedback\\ncreatedAt\\nupdatedAt }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recommendation_feedback_id}}\",\n    \"input\": {\n      \"rating\": 4,\n      \"feedback\": \"like\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Delete recommendation feedback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeleteRecommendationFeedback($id: String!) {\\n  deleteRecommendationFeedback(id: $id) { deleted }\\n}\",\n  \"variables\": {\n    \"id\": \"{{recommendation_feedback_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Notifications {\\n  notifications {\\n    id\\n    userId\\n    title\\n    message\\n    type\\n    entityType\\n    entityId\\n    isRead\\n    createdAt\\n    updatedAt\\n  }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Unread notifications count",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query UnreadNotificationsCount {\\n  unreadNotificationsCount\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Scans",
+      "item": [
+        {
+          "name": "Confirm scan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ConfirmScan($input: ConfirmScanInput!) {\\n  confirmScan(input: $input) {\\n    saved { id\\nproductName\\nquantity\\nunit\\ncategory\\nlocation\\nbarcode\\nnotes\\nexpirationDate\\npurchaseDate\\nalertSent\\nproduct {\\n  id\\n  name\\n}\\nuser {\\n  id\\n  email\\n} }\\n  }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"detectedName\": \"Tomate escaneado\",\n      \"category\": \"vegetables\",\n      \"quantity\": 1,\n      \"unit\": \"kg\",\n      \"productId\": \"{{product_id}}\",\n      \"notes\": \"Confirmado desde Postman GraphQL\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stores and Prices",
+      "item": [
+        {
+          "name": "Create store",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createStore && json.data.createStore.id) {",
+                  "  pm.environment.set(\"store_id\", json.data && json.data.createStore && json.data.createStore.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateStore($input: CreateStoreInput!) {\\n  createStore(input: $input) { id\\nname\\naddress\\ncity\\nlatitude\\nlongitude\\nphoneNumber\\nwebsite\\nisActive }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"name\": \"Tienda Centro {{runSuffix}}\",\n      \"address\": \"Calle 1 #2-3\",\n      \"city\": \"Bogota\",\n      \"latitude\": 4.711,\n      \"longitude\": -74.0721,\n      \"phoneNumber\": \"+5712345678\",\n      \"website\": \"https://example.com\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "List stores",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Stores {\\n  stores { id\\nname\\naddress\\ncity\\nlatitude\\nlongitude\\nphoneNumber\\nwebsite\\nisActive }\\n}\",\n  \"variables\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get store by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query Store($id: String!) {\\n  store(id: $id) { id\\nname\\naddress\\ncity\\nlatitude\\nlongitude\\nphoneNumber\\nwebsite\\nisActive }\\n}\",\n  \"variables\": {\n    \"id\": \"{{store_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update store",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateStore($id: String!, $input: UpdateStoreInput!) {\\n  updateStore(id: $id, input: $input) { id\\nname\\naddress\\ncity\\nlatitude\\nlongitude\\nphoneNumber\\nwebsite\\nisActive }\\n}\",\n  \"variables\": {\n    \"id\": \"{{store_id}}\",\n    \"input\": {\n      \"city\": \"Medellin\",\n      \"isActive\": true\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Create store price",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});",
+                  "if (json.data && json.data.createStorePrice && json.data.createStorePrice.id) {",
+                  "  pm.environment.set(\"store_price_id\", json.data && json.data.createStorePrice && json.data.createStorePrice.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateStorePrice($input: CreateStorePriceInput!) {\\n  createStorePrice(input: $input) { id\\nstoreId\\nproductId\\nprice\\nisAvailable\\nnotes\\nstore {\\n  id\\n  name\\n}\\nproduct {\\n  id\\n  name\\n} }\\n}\",\n  \"variables\": {\n    \"input\": {\n      \"storeId\": \"{{store_id}}\",\n      \"productId\": \"{{product_id}}\",\n      \"price\": 4500,\n      \"isAvailable\": true,\n      \"notes\": \"Precio prueba\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Prices by product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query PricesByProduct($productId: String!) {\\n  pricesByProduct(productId: $productId) { id\\nstoreId\\nproductId\\nprice\\nisAvailable\\nnotes\\nstore {\\n  id\\n  name\\n}\\nproduct {\\n  id\\n  name\\n} }\\n}\",\n  \"variables\": {\n    \"productId\": \"{{product_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Prices by store",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query PricesByStore($storeId: String!) {\\n  pricesByStore(storeId: $storeId) { id\\nstoreId\\nproductId\\nprice\\nisAvailable\\nnotes\\nstore {\\n  id\\n  name\\n}\\nproduct {\\n  id\\n  name\\n} }\\n}\",\n  \"variables\": {\n    \"storeId\": \"{{store_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Get store price",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query StorePrice($storeId: String!, $productId: String!) {\\n  storePrice(storeId: $storeId, productId: $productId) { id\\nstoreId\\nproductId\\nprice\\nisAvailable\\nnotes\\nstore {\\n  id\\n  name\\n}\\nproduct {\\n  id\\n  name\\n} }\\n}\",\n  \"variables\": {\n    \"storeId\": \"{{store_id}}\",\n    \"productId\": \"{{product_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Update store price",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation UpdateStorePrice($storeId: String!, $productId: String!, $input: UpdateStorePriceInput!) {\\n  updateStorePrice(storeId: $storeId, productId: $productId, input: $input) { id\\nstoreId\\nproductId\\nprice\\nisAvailable\\nnotes\\nstore {\\n  id\\n  name\\n}\\nproduct {\\n  id\\n  name\\n} }\\n}\",\n  \"variables\": {\n    \"storeId\": \"{{store_id}}\",\n    \"productId\": \"{{product_id}}\",\n    \"input\": {\n      \"price\": 4200,\n      \"notes\": \"Precio actualizado\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Delete store price",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeleteStorePrice($storeId: String!, $productId: String!) {\\n  deleteStorePrice(storeId: $storeId, productId: $productId)\\n}\",\n  \"variables\": {\n    \"storeId\": \"{{store_id}}\",\n    \"productId\": \"{{product_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Delete store",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"GraphQL sin errores\", function () {",
+                  "  pm.expect(json.errors, JSON.stringify(json.errors || [])).to.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeleteStore($id: String!) {\\n  deleteStore(id: $id)\\n}\",\n  \"variables\": {\n    \"id\": \"{{store_id}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/graphql",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
