@@ -34,6 +34,20 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    return Boolean(user.role) && requiredRoles.includes(user.role as Role);
+    const userRole = user.role as Role | undefined;
+
+    if (!userRole) {
+      return false;
+    }
+
+    if (requiredRoles.includes(userRole)) {
+      return true;
+    }
+
+    if (userRole === Role.SuperAdmin && requiredRoles.includes(Role.Admin)) {
+      return true;
+    }
+
+    return false;
   }
 }

@@ -25,7 +25,7 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Query(() => User)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   me(@Context('req') req: RequestWithUser) {
     const userId = req.user?.id as string | undefined;
     if (!userId) {
@@ -35,7 +35,7 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   updateMe(
     @Context('req') req: RequestWithUser,
     @Args('input') input: UpdateUserDto,
@@ -48,7 +48,7 @@ export class UsersResolver {
   }
 
   @Query(() => [User])
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   users() {
     return this.usersService.findAll();
   }
