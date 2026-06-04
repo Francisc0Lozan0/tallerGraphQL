@@ -10,6 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
+import { User } from '../../users/entities/user.entity';
 
 export const INVENTORY_CATEGORIES = [
   'fruits',
@@ -53,6 +54,9 @@ export class InventoryItem {
   @ManyToOne(() => Product)
   @JoinColumn({ name: 'product_id' })
   product?: Product | null;
+
+  @Field(() => User, { nullable: true })
+  user?: User | null;
 
   @Field()
   @Column({ name: 'product_name', type: 'varchar', length: 100 })

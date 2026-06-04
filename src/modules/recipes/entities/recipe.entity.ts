@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { RecipeIngredient } from "./recipe-ingredient.entity";
 import { RecipeStep } from "./recipe-step.entity";
+import { User } from '../../users/entities/user.entity';
 
 export const RECIPE_CATEGORIES = [
   "breakfast",
@@ -148,6 +149,9 @@ export class Recipe {
   @Field(() => [RecipeStep])
   @OneToMany(() => RecipeStep, (step) => step.recipe)
   steps: RecipeStep[];
+
+  @Field(() => User, { nullable: true })
+  user?: User | null;
 
   @AfterLoad()
   formatImageUrl() {

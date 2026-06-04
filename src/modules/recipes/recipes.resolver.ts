@@ -8,12 +8,16 @@ import {
   Int,
   Mutation,
   PartialType,
+  Parent,
   Query,
+  ResolveField,
   Resolver,
 } from '@nestjs/graphql';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Recipe } from './entities/recipe.entity';
 import { RecipesService } from './recipes.service';
+import { UsersService } from '../users/users.service';
+import { User } from '../users/entities/user.entity';
 
 interface RequestWithUser {
   user?: {
@@ -125,7 +129,10 @@ class PrepareRecipeInput {
 
 @Resolver(() => Recipe)
 export class RecipesResolver {
-  constructor(private readonly recipesService: RecipesService) {}
+  constructor(
+    private readonly recipesService: RecipesService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Mutation(() => Recipe)
   createRecipe(@Args('input') input: CreateRecipeInput) {
@@ -179,5 +186,10 @@ export class RecipesResolver {
   @Mutation(() => Recipe)
   deleteRecipe(@Args('id') id: string) {
     return this.recipesService.remove(id);
+  }
+
+  @ResolveField(() => User, { nullable: true })
+  user(@Parent() recipe: Recipe) {
+    return this.usersService.findById(recipe.userId);
   }
 }

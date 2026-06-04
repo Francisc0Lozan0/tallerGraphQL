@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Context, Field, InputType, Int, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Field, InputType, Int, Mutation, ObjectType, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { Role } from '../auth/enums/role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InventoryService } from './inventory.service';
@@ -7,6 +7,10 @@ import { InventoryItem } from './entities/inventory-item.entity';
 import { CreateInventoryItemDto } from './dto/create-inventory-item.dto';
 import { UpdateInventoryItemDto } from './dto/update-inventory-item.dto';
 import { ConsumeInventoryItemsDto } from './dto/consume-inventory-items.dto';
+import { ProductsService } from '../products/products.service';
+import { Product } from '../products/entities/product.entity';
+import { UsersService } from '../users/users.service';
+import { User } from '../users/entities/user.entity';
 
 interface RequestWithUser {
   user?: {
@@ -47,7 +51,11 @@ class ConsumeInventoryResponse {
 
 @Resolver(() => InventoryItem)
 export class InventoryResolver {
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(
+    private readonly inventoryService: InventoryService,
+    private readonly productsService: ProductsService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Mutation(() => InventoryItem)
   @UseGuards(JwtAuthGuard)
@@ -123,5 +131,23 @@ export class InventoryResolver {
     const isAdmin = req.user?.role === Role.Admin;
     const userId = isAdmin ? undefined : (req.user?.id as string);
     return this.inventoryService.remove(id, userId);
+  }
+
+  @ResolveField(() => Product, { nullable: true })
+  product(@Parent() item: InventoryItem) {
+    if (item.product) {
+      return item.product;
+    }
+
+    if (!item.productId) {
+      return null;
+    }
+
+    return this.productsService.findOne(item.productId);
+  }
+
+  @ResolveField(() => User, { nullable: true })
+  user(@Parent() item: InventoryItem) {
+    return this.usersService.findById(item.userId);
   }
 }
