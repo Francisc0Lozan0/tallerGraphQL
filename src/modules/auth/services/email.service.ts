@@ -16,7 +16,11 @@ export class EmailService {
       const smtpPass = process.env.GOOGLE_SMTP_PASSWORD || '';
 
       if (!smtpUser || !smtpPass) {
-        throw new Error('SMTP credentials are not configured');
+        this.logger.warn('SMTP credentials are not configured; using json transport');
+        this.transporter = nodemailer.createTransport({
+          jsonTransport: true,
+        });
+        return;
       }
 
       this.transporter = nodemailer.createTransport({
