@@ -79,7 +79,7 @@ export class User {
   @Column({ name: 'goal', type: 'varchar', length: 20 })
   goal!: NutritionGoal;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: 'phone_number', type: 'varchar', length: 30, nullable: true })
   phoneNumber?: string | null;
 
@@ -99,7 +99,7 @@ export class User {
   })
   smsNotificationsEnabled!: boolean;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: 'profile_image', type: 'varchar', length: 500, nullable: true })
   profileImage?: string | null;
 
@@ -131,7 +131,7 @@ export class User {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @Column({ name: 'last_login', type: 'timestamptz', nullable: true })
   lastLogin?: Date | null;
 

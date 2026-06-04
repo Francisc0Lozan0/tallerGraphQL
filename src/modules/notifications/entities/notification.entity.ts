@@ -32,7 +32,7 @@ export class Notification {
   @Column({ name: 'user_id', type: 'char', length: 24 })
   userId!: string;
 
-  @Field()
+  @Field(() => String)
   @Column({ type: 'varchar', length: 40 })
   type!: NotificationType;
 
@@ -44,11 +44,11 @@ export class Notification {
   @Column({ type: 'text' })
   message!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: 'entity_type', type: 'varchar', length: 40, nullable: true })
   entityType?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: 'entity_id', type: 'char', length: 24, nullable: true })
   entityId?: string | null;
 

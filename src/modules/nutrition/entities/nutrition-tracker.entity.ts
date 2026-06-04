@@ -5,49 +5,49 @@ export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 
 @ObjectType()
 export class FoodConsumption {
-  @Field()
+  @Field(() => String)
   productName: string;
 
-  @Field()
+  @Field(() => Float)
   quantity: number;
 
-  @Field()
+  @Field(() => String)
   unit: string;
 
-  @Field()
+  @Field(() => Date)
   consumedAt: Date;
 
-  @Field()
+  @Field(() => String)
   mealType: string;
 }
 
 @ObjectType()
 export class DailyNutritionSummary {
-  @Field()
+  @Field(() => Date)
   date: Date;
 
-  @Field()
+  @Field(() => Float)
   calories: number;
 
-  @Field()
+  @Field(() => Float)
   protein: number;
 
-  @Field()
+  @Field(() => Float)
   carbohydrates: number;
 
-  @Field()
+  @Field(() => Float)
   fat: number;
 
-  @Field()
+  @Field(() => Float)
   fiber: number;
 
-  @Field()
+  @Field(() => Float)
   sugars: number;
 
-  @Field()
+  @Field(() => Float)
   sodium: number;
 
-  @Field()
+  @Field(() => Float)
   waterIntake: number;
 }
 
@@ -63,27 +63,27 @@ export class NutritionTracker {
   @Column({ name: 'user_id', type: 'char', length: 24 })
   userId: string;
 
-  @Field()
+  @Field(() => Date)
   @Column({ type: 'timestamptz' })
   date: Date;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'total_calories', type: 'numeric', default: 0 })
   totalCalories: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'total_protein', type: 'numeric', default: 0 })
   totalProtein: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'total_carbohydrates', type: 'numeric', default: 0 })
   totalCarbohydrates: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'total_fat', type: 'numeric', default: 0 })
   totalFat: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'total_fiber', type: 'numeric', default: 0 })
   totalFiber: number;
 
@@ -91,7 +91,7 @@ export class NutritionTracker {
   @Column({ name: 'water_intake_ml', type: 'integer', default: 0 })
   waterIntakeMl: number;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 

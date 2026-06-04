@@ -46,7 +46,7 @@ export class InventoryItem {
   @Column({ name: 'user_id', type: 'char', length: 24 })
   userId!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ name: 'product_id', type: 'char', length: 24, nullable: true })
   productId?: string | null;
 
@@ -62,7 +62,7 @@ export class InventoryItem {
   @Column({ name: 'product_name', type: 'varchar', length: 100 })
   productName!: string;
 
-  @Field()
+  @Field(() => Float)
   @Column({ type: 'numeric', precision: 10, scale: 3, default: 0 })
   quantity!: number;
 
@@ -70,7 +70,7 @@ export class InventoryItem {
   @Column({ type: 'varchar', length: 20 })
   unit!: string;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @Column({ name: 'purchase_date', type: 'timestamptz', nullable: true })
   purchaseDate: Date | null;
 
@@ -78,19 +78,19 @@ export class InventoryItem {
   @Column({ name: 'expiration_date', type: 'timestamptz' })
   expirationDate!: Date;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 30, nullable: true })
   category?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 100, nullable: true })
   location?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'varchar', length: 50, nullable: true })
   barcode?: string | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   notes?: string | null;
 

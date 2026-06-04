@@ -41,27 +41,27 @@ export class NutritionGoal {
   @Column({ name: 'goal_daily_calories', type: 'integer' })
   goalDailyCalories: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'goal_protein_grams', type: 'numeric', default: 0 })
   goalProteinGrams: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'goal_carbohydrates_grams', type: 'numeric', default: 0 })
   goalCarbohydratesGrams: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'goal_fat_grams', type: 'numeric', default: 0 })
   goalFatGrams: number;
 
-  @Field()
+  @Field(() => Float)
   @Column({ name: 'goal_fiber_grams', type: 'numeric', default: 0 })
   goalFiberGrams: number;
 
-  @Field({ nullable: true })
+  @Field(() => Float, { nullable: true })
   @Column({ name: 'goal_sugar_limit_grams', type: 'numeric', nullable: true })
   goalSugarLimitGrams: number | null;
 
-  @Field({ nullable: true })
+  @Field(() => Float, { nullable: true })
   @Column({ name: 'goal_sodium_limit_mg', type: 'numeric', nullable: true })
   goalSodiumLimitMg: number | null;
 
@@ -73,7 +73,7 @@ export class NutritionGoal {
   @Column({ name: 'start_date', type: 'timestamptz' })
   startDate: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @Column({ name: 'end_date', type: 'timestamptz', nullable: true })
   endDate: Date | null;
 
