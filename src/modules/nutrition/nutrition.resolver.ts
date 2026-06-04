@@ -1,8 +1,15 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { GraphQLJSON } from 'graphql-type-json';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { NutritionService } from './nutrition.service';
+import { NutritionProfileResponseDto } from './dto/nutritionProfileResponse.dto';
+import { NutritionProfileDto } from './dto/nutritionProfile.dto';
+import { CreateNutritionTrackerDto } from './dto/create-nutrition-tracker.dto';
+import { NutritionTracker } from './entities/nutrition-tracker.entity';
+import { UpdateNutritionTrackerDto } from './dto/update-nutrition-tracker.dto';
+import { CreateNutritionGoalDto } from './dto/create-nutrition-goal.dto';
+import { NutritionGoal } from './entities/nutrition-goal.entity';
+import { UpdateNutritionGoalDto } from './dto/update-nutrition-goal.dto';
 
 interface RequestWithUser {
   user?: {
@@ -14,34 +21,34 @@ interface RequestWithUser {
 export class NutritionResolver {
   constructor(private readonly nutritionService: NutritionService) {}
 
-  @Query(() => GraphQLJSON)
+  @Query(() => NutritionProfileResponseDto)
   @UseGuards(JwtAuthGuard)
   nutritionProfile(@Context('req') request: RequestWithUser) {
     const userId = this.getUserId(request);
     return this.nutritionService.getMyProfile(userId);
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => NutritionProfileResponseDto)
   @UseGuards(JwtAuthGuard)
   upsertNutritionProfile(
     @Context('req') request: RequestWithUser,
-    @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
+    @Args('input') input: NutritionProfileDto,
   ) {
     const userId = this.getUserId(request);
-    return this.nutritionService.upsertMyProfile(userId, input as any);
+    return this.nutritionService.upsertMyProfile(userId, input);
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => NutritionTracker)
   @UseGuards(JwtAuthGuard)
   createNutritionTracker(
     @Context('req') request: RequestWithUser,
-    @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
+    @Args('input') input: CreateNutritionTrackerDto,
   ) {
     const userId = this.getUserId(request);
-    return this.nutritionService.createTracker(userId, input as any);
+    return this.nutritionService.createTracker(userId, input);
   }
 
-  @Query(() => GraphQLJSON)
+  @Query(() => NutritionTracker, { nullable: true })
   @UseGuards(JwtAuthGuard)
   nutritionTrackerByDate(
     @Context('req') request: RequestWithUser,
@@ -51,43 +58,43 @@ export class NutritionResolver {
     return this.nutritionService.findTrackerByDate(userId, date);
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => NutritionTracker)
   @UseGuards(JwtAuthGuard)
   updateNutritionTracker(
     @Context('req') request: RequestWithUser,
     @Args('id') id: string,
-    @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
+    @Args('input') input: UpdateNutritionTrackerDto,
   ) {
     const userId = this.getUserId(request);
-    return this.nutritionService.updateTracker(id, userId, input as any);
+    return this.nutritionService.updateTracker(id, userId, input);
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => NutritionGoal)
   @UseGuards(JwtAuthGuard)
   createNutritionGoal(
     @Context('req') request: RequestWithUser,
-    @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
+    @Args('input') input: CreateNutritionGoalDto,
   ) {
     const userId = this.getUserId(request);
-    return this.nutritionService.createGoal(userId, input as any);
+    return this.nutritionService.createGoal(userId, input);
   }
 
-  @Query(() => GraphQLJSON)
+  @Query(() => NutritionGoal, { nullable: true })
   @UseGuards(JwtAuthGuard)
   activeNutritionGoal(@Context('req') request: RequestWithUser) {
     const userId = this.getUserId(request);
     return this.nutritionService.getActiveGoal(userId);
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => NutritionGoal)
   @UseGuards(JwtAuthGuard)
   updateNutritionGoal(
     @Context('req') request: RequestWithUser,
     @Args('id') id: string,
-    @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
+    @Args('input') input: UpdateNutritionGoalDto,
   ) {
     const userId = this.getUserId(request);
-    return this.nutritionService.updateGoal(id, userId, input as any);
+    return this.nutritionService.updateGoal(id, userId, input);
   }
 
   private getUserId(request: RequestWithUser): string {

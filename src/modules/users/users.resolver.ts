@@ -1,11 +1,12 @@
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { GraphQLJSON } from 'graphql-type-json';
+import { Args, Context, Field, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 interface RequestWithUser {
   user?: {
@@ -13,11 +14,17 @@ interface RequestWithUser {
   };
 }
 
-@Resolver()
+@ObjectType()
+class DeleteUserResponse {
+  @Field()
+  deleted!: boolean;
+}
+
+@Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Query(() => GraphQLJSON)
+  @Query(() => User)
   @UseGuards(JwtAuthGuard, RolesGuard)
   me(@Context('req') req: RequestWithUser) {
     const userId = req.user?.id as string | undefined;
@@ -27,26 +34,26 @@ export class UsersResolver {
     return this.usersService.findById(userId);
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => User)
   @UseGuards(JwtAuthGuard, RolesGuard)
   updateMe(
     @Context('req') req: RequestWithUser,
-    @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
+    @Args('input') input: UpdateUserDto,
   ) {
     const userId = req.user?.id as string | undefined;
     if (!userId) {
       throw new NotFoundException('User not found');
     }
-    return this.usersService.update(userId, input as any);
+    return this.usersService.update(userId, input);
   }
 
-  @Query(() => [GraphQLJSON])
+  @Query(() => [User])
   @UseGuards(JwtAuthGuard, RolesGuard)
   users() {
     return this.usersService.findAll();
   }
 
-  @Query(() => GraphQLJSON)
+  @Query(() => User)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   user(@Args('id') id: string) {
@@ -58,14 +65,14 @@ export class UsersResolver {
     });
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => User)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   updateUser(
     @Args('id') id: string,
-    @Args('input', { type: () => GraphQLJSON }) input: Record<string, any>,
+    @Args('input') input: UpdateUserDto,
   ) {
-    return this.usersService.update(id, input as any).then((updated) => {
+    return this.usersService.update(id, input).then((updated) => {
       if (!updated) {
         throw new NotFoundException('User not found');
       }
@@ -73,7 +80,7 @@ export class UsersResolver {
     });
   }
 
-  @Mutation(() => GraphQLJSON)
+  @Mutation(() => DeleteUserResponse)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   async deleteUser(@Args('id') id: string) {
