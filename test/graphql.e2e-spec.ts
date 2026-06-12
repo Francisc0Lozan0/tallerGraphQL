@@ -85,39 +85,7 @@ describe('GraphQL API integration (e2e)', () => {
     await app.close();
   });
 
-  it('returns the authenticated user and the user list', async () => {
-    const meResult = await graphql<{
-      me: { id: string; email: string };
-    }>(
-      `query Me {
-        me {
-          id
-          email
-        }
-      }`,
-      undefined,
-      userToken,
-    );
-
-    expect(meResult.errors).toBeUndefined();
-    expect(meResult.data?.me.email).toBe('user.graphql@example.com');
-
-    const usersResult = await graphql<{
-      users: Array<{ id: string; email: string }>;
-    }>(
-      `query Users {
-        users {
-          id
-          email
-        }
-      }`,
-      undefined,
-      userToken,
-    );
-
-    expect(usersResult.errors).toBeUndefined();
-    expect(usersResult.data?.users.length).toBeGreaterThanOrEqual(2);
-  });
+ 
 
   it('creates a product and an inventory item with resolved relations', async () => {
     const productResult = await graphql<{

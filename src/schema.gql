@@ -129,6 +129,13 @@ input CreateRecipeInput {
   servings: Int
 }
 
+input CreateRecommendationFeedbackDto {
+  feedback: String
+  prepared: Boolean
+  rating: Int!
+  recipeId: String!
+}
+
 input CreateStoreInput {
   address: String
   city: String
@@ -151,6 +158,10 @@ input CreateStorePriceInput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type DeleteRecommendationResponse {
+  deleted: Boolean!
+}
 
 type DeleteUserResponse {
   deleted: Boolean!
@@ -219,11 +230,13 @@ type Mutation {
   createNutritionTracker(input: CreateNutritionTrackerDto!): NutritionTracker!
   createProduct(input: CreateProductDto!): Product!
   createRecipe(input: CreateRecipeInput!): Recipe!
+  createRecommendationFeedback(input: CreateRecommendationFeedbackDto!): RecommendationFeedback!
   createStore(input: CreateStoreInput!): Store!
   createStorePrice(input: CreateStorePriceInput!): StorePrice!
   deleteInventoryItem(id: String!): InventoryItem!
   deleteProduct(id: String!): Product!
   deleteRecipe(id: String!): Recipe!
+  deleteRecommendationFeedback(id: String!): DeleteRecommendationResponse!
   deleteStore(id: String!): Boolean!
   deleteStorePrice(productId: String!, storeId: String!): Boolean!
   deleteUser(id: String!): DeleteUserResponse!
@@ -240,6 +253,7 @@ type Mutation {
   updateNutritionTracker(id: String!, input: UpdateNutritionTrackerDto!): NutritionTracker!
   updateProduct(id: String!, input: UpdateProductDto!): Product!
   updateRecipe(id: String!, input: UpdateRecipeInput!): Recipe!
+  updateRecommendationFeedback(id: String!, input: UpdateRecommendationFeedbackDto!): RecommendationFeedback!
   updateStore(id: String!, input: UpdateStoreInput!): Store!
   updateStorePrice(input: UpdateStorePriceInput!, productId: String!, storeId: String!): StorePrice!
   updateUser(id: String!, input: UpdateUserDto!): User!
@@ -374,9 +388,13 @@ type Query {
   products(filter: ProductFilter): [Product!]!
   recipe(id: String!): Recipe!
   recipes(filter: RecipeFilterInput): [Recipe!]!
+  recommendation(id: String!): RecommendationFeedback!
+  recommendations(recipeId: String): [RecommendationFeedback!]!
+  recommendationsSuggest(input: RecommendationSuggestInput!): [Recipe!]!
   store(id: String!): Store!
   storePrice(productId: String!, storeId: String!): StorePrice!
   stores: [Store!]!
+  topRatedRecommendations(limit: Int): [RecommendationFeedback!]!
   unreadNotificationsCount: Int!
   user(id: String!): User!
   users: [User!]!
@@ -448,6 +466,38 @@ type RecipeStep {
   order: Int!
   recipeId: String!
   updatedAt: DateTime!
+}
+
+type RecommendationFeedback {
+  createdAt: DateTime!
+  feedback: String
+  id: ID!
+  prepared: Boolean!
+  rating: Int!
+  recipeId: String!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+input RecommendationSuggestInput {
+  bakery: Boolean
+  beverage: Boolean
+  budget: Int
+  cuisine: String
+  date: String
+  dessert: Boolean
+  difficulty: String
+  excludeIngredients: [String!]
+  ingredient: String
+  limit: Int
+  mealType: String
+  nutrition: String
+  objective: String
+  prepTime: Int
+  q: String
+  query: String
+  restrictions: [String!]
+  strict: Boolean
 }
 
 input RegisterDto {
@@ -578,6 +628,13 @@ input UpdateRecipeInput {
   servings: Int
 }
 
+input UpdateRecommendationFeedbackDto {
+  feedback: String
+  prepared: Boolean
+  rating: Int
+  recipeId: String
+}
+
 input UpdateStoreInput {
   address: String
   city: String
@@ -622,7 +679,7 @@ input UpdateUserDto {
 
 type User {
   activityLevel: ActivityLevel!
-  birthDate: DateTime!
+  birthDate: String!
   createdAt: DateTime!
   email: String!
   emailNotificationsEnabled: Boolean!

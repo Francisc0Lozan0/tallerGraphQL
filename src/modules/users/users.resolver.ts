@@ -48,7 +48,8 @@ export class UsersResolver {
   }
 
   @Query(() => [User])
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   users() {
     return this.usersService.findAll();
   }

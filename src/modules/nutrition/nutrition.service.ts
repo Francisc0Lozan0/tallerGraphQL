@@ -14,7 +14,7 @@ import { DietType, NutritionProfile } from './entities/nutritionProfile.entity';
 import { ActivityLevel, NutritionGoal as UserGoal, Sex } from '../users/entities/user.entity';
 
 export interface NutritionCalculationInput {
-  birthDate: Date;
+  birthDate: Date | string;
   sex: Sex;
   weightKg: number;
   heightCm: number;

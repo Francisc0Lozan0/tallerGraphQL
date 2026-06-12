@@ -55,9 +55,9 @@ export class User {
   @Column({ name: 'last_name', type: 'varchar', length: 100 })
   lastName!: string;
 
-  @Field()
+  @Field(() => String)
   @Column({ name: 'birth_date', type: 'date' })
-  birthDate!: Date;
+  birthDate!: Date | string;
 
   @Field(() => Sex)
   @Column({ name: 'sex', type: 'varchar', length: 10 })
